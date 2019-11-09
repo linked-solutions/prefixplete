@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Prefixplete Example</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.css" integrity="sha256-WucYll9Mn2FE68lRHrTpBwzWC+Ra3IeEok0re4TBmgc=" crossorigin="anonymous" />
+        <script src="/prefixplete.js"></script>
+    </head>
+    <body>
+        <label for="url-input">Url (Class or property name)</label> <input type="text" id="url-input"/>
+        <script>
+            let input = document.getElementById("url-input");
+            let prefixplete = new Prefixplete(input);
+            prefixplete.action = function(value) {
+                alert(value);
+            }
+        </script>
+    </body>
+</html>    
