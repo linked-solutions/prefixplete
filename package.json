@@ -1,0 +1,39 @@
+{
+  "name": "prefixplete",
+  "version": "1.0.0",
+  "description": "Allows auto-completion of prefixed class and property names in an input field",
+  "main": "src/prefixplete.js",
+  "scripts": {
+    "build": "webpack -p",
+    "start": "webpack-dev-server --hot --inline --content-base example --host 0.0.0.0",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linked-solutions/prefixplete.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linked-solutions/prefixplete/issues"
+  },
+  "homepage": "https://github.com/linked-solutions/prefixplete#readme",
+  "dependencies": {
+    "@retog/sparql-client": "^1.0.2",
+    "awesomplete": "^1.1.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-transform-arrow-functions": "^7.2.0",
+    "@babel/plugin-transform-object-assign": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/register": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-add-module-exports": "^1.0.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.0"
+  }
+}
