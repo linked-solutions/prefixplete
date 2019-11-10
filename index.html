@@ -2,16 +2,48 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6574CD">
+    <link href="https://unpkg.com/firacode@1.206.0/distr/fira_code.css" rel="stylesheet">
+    <link href="https://fuseki-oidc-sample-client.factsmission.org/style.css" rel="stylesheet">
     <meta charset="utf-8">
     <title>Prefixplete Example</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.css"
         integrity="sha256-WucYll9Mn2FE68lRHrTpBwzWC+Ra3IeEok0re4TBmgc=" crossorigin="anonymous" />
     <script src="/prefixplete.js"></script>
 </head>
-
 <body>
-    <pre id="ooh"> </pre>
-    <label for="url-input">Url (Class or property name) <input type="text" id="url-input" /></label>
+    <div class="container">
+      <div class="card">
+        <div class="info">
+            Provides a text field to select an RDF property or class with prefixed notation and auto-completion.
+            <br>
+            It uses <a href="https://leaverou.github.io/awesomplete/">Awesomplete</a> autocomplete widget and prefixes
+            from <a href="https://prefix.cc/">prefix.cc</a> with the ontologies harvested by <a href="https://github.com/linked-solutions/prefix.cc-harvester">our prefix.cc-harvester</a>.
+        </div>
+      </div>
+      <div class="card">
+            <label for="ooh">prefixplete.value:</label>
+            <div class="info" id="ooh"> </div>
+        </div>
+        <div class="flexrow">
+            <label for="url-input">Class or property name:</label>
+            <input type="text" id="url-input" />
+        </div>
+      </div>
+      <div class="vertexpand">
+      </div>
+      <div class="card">
+        <div class="flexrow">
+            <div class="info">
+              Source Code on <a href="https://github.com/linked-solutions/prefixplete">Github</a>
+            </div>
+            <div class="info">
+              Made by <a href="https://factsmission.com">FactsMission</a>
+            </div>
+        </div>
+      </div>
+    </div>
     <script>
         let input = document.getElementById("url-input");
         let prefixplete = new Prefixplete(input);
