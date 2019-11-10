@@ -1,0 +1,29 @@
+sudo: false
+language: node_js
+node_js:
+  - "12.13.0"
+env:
+  - CXX=g++-5
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-5
+script:
+  - npm run build
+branches:
+  only: 
+    - gh-pages
+    - /.*/ 
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: bash .travis_publish
+    on:
+      branch: master
+  - provider: npm
+    email: "reto@factsmission.com"
+    api_key: $NPM_AUTH_TOKEN
+    on:
+      tags: true
