@@ -44,6 +44,15 @@ export default class Prefixplete {
             }
         }
 
+        function getPrefixedUri (fullUri) {
+            const mapping = prefixMappings.find(m => fullUri.startsWith(m.uri));
+            if (mapping) {
+                return fullUri.replace(mapping.uri, mapping.prefix + ":")
+            } else {
+                return fullUri;
+            }
+        }
+
         function populateSuggestions() {
             if (input.value.toString().indexOf(":") === -1) {
                 previousValue = input.value;
@@ -56,6 +65,7 @@ export default class Prefixplete {
                 const splitup = input.value.toString().split(":");
                 getFullSuggestions({prefix: splitup[0], url: getFullUri(input.value.toString())}).then(_ => {
                     awesomplete.list = fullSuggestions.map(i => i.display !== i.prefix + ":" ? i.display : undefined);
+                    //console.log("%cPrefixplete > populateSuggestions", "color: #4527a0", fullSuggestions.map(i => i.display !== i.prefix + ":" ? i.display : undefined));
                     awesomplete.open();
                 });
             }
@@ -92,7 +102,7 @@ export default class Prefixplete {
             "SELECT ?prefix ?uri WHERE {\n" +
             "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
             "         vann:preferredNamespaceUri ?uri .\n" +
-            "  FILTER ( REGEX (?prefix, \""+ prefix +"\") )\n" +
+            "    FILTER ( REGEX (?prefix, \""+ prefix +"\") )\n" +
             "}\n" +
             "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
@@ -110,17 +120,18 @@ export default class Prefixplete {
 
         function getFullSuggestions(prefix) {
             //console.log("%cPrefixplete > getFullSuggestions", "color: #4527a0", prefix);
-            let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
-            "SELECT DISTINCT ?uri WHERE {\n" +
+            let query = "SELECT DISTINCT ?uri WHERE {\n" +
+            "  GRAPH <https://mtp.linked.solutions/" + prefix.prefix + "> {\n" +
             "    ?uri ?p ?o .\n" +
             "    FILTER ( REGEX ( STR(?uri), \""+ prefix.url.replace(/\./, "\\\\.") +"\") )\n" +
+            "  }\n" +
             "}\n" +
             "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 fullSuggestions = json.results.bindings.map(binding => {
                     return {
                         prefix: prefix.prefix,
-                        display: binding.uri.value.replace(prefix.url, prefix.prefix + ":"),
+                        display: getPrefixedUri(binding.uri.value),
                         uri: binding.uri.value,
                     };
                 });
