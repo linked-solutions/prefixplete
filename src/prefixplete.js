@@ -9,13 +9,13 @@ export default class Prefixplete {
         const self = this;
 
         let previousValue = input.value;
-        let prefixUrls = [];
-        let cs = [];
-        let ss = [];
+        let prefixMappings = []; // [{uri, prefix},..]
+        let prefixSuggestions = [];
+        let fullSuggestions = [];
 
         const awesomplete = new Awesomplete(input);
-        //awesomplete.maxItems = 15;
-        //awesomplete.sort = false;
+        awesomplete.maxItems = 25;
+        awesomplete.
 
         input.addEventListener("keyup", (e) => {
             if ((input.value.length >= 2) && (e.key !== "Enter") && (input.value !== previousValue)) {
@@ -25,7 +25,7 @@ export default class Prefixplete {
         });
 
         input.addEventListener("awesomplete-selectcomplete", (e) => {
-            if (input.value.trim().split(":").length < 2) {
+            if (input.value.trim().split(":").length < 2 || input.value.trim().split(":")[1] === "") {
                 populateSuggestions();
                 awesomplete.open();
             } else {
@@ -33,27 +33,33 @@ export default class Prefixplete {
             }
         });
 
+        function getFullUri (prefixedUri) {
+            const splitup = prefixedUri.split(":");
+            //console.log("%cPrefixplete > getFullUri", "color: #4527a0", splitup, prefixMappings);
+            const mapping = prefixMappings.find(m => splitup[0] === m.prefix);
+            if (mapping) {
+                return mapping.uri + splitup[1];
+            } else {
+                return prefixedUri;
+            }
+        }
+
         function populateSuggestions() {
             if (input.value.toString().indexOf(":") === -1) {
                 previousValue = input.value;
-                Promise.all([getPrefixUrlSuggestions(input.value), getCombinedSuggestions(input.value)]).then(v => {
-                    awesomplete.list = prefixUrls.map(i => i.prefix + ":").concat(cs);
+                getPrefixUrlSuggestions(input.value).then(_ => {
+                    awesomplete.list = prefixSuggestions.map(i => i.display);
+                    awesomplete.open();
                 });
             } else {
                 previousValue = input.value;
-                let speciesIn = input.value.toString().substr(input.value.toString().indexOf(" ") + 1);
-                let genusIn = input.value.toString().substring(0, input.value.toString().indexOf(" "));
-                if (speciesIn.length > 0) {
-                    getSpeciesSuggestions(speciesIn, genusIn).then(values => {
-                        awesomplete.list = ss.map(i => genusIn + ":" + i);
-                    });
-                } else {
-                    getSpeciesSuggestions("", genusIn).then(values => {
-                        awesomplete.list = ss.map(i => genusIn + ":" + i);
-                    });
-                }
+                const splitup = input.value.toString().split(":");
+                getFullSuggestions({prefix: splitup[0], url: getFullUri(input.value.toString())}).then(_ => {
+                    awesomplete.list = fullSuggestions.map(i => i.display !== i.prefix + ":" ? i.display : undefined);
+                    awesomplete.open();
+                });
             }
-        }
+        } 
 
         /*awesomplete.filter = (t, i) => {
             let foundPos = t.toLowerCase().indexOf(i.toLowerCase());
@@ -81,63 +87,43 @@ export default class Prefixplete {
             return result;
         };*/
 
-
-        /**
-         * 
-         * @param {type} prefix
-         * @returns A promise for an array of matching genera
-         */
         function getPrefixUrlSuggestions(prefix) {
             let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
             "SELECT ?prefix ?uri WHERE {\n" +
             "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
             "         vann:preferredNamespaceUri ?uri .\n" +
             "  FILTER ( REGEX (?prefix, \""+ prefix +"\") )\n" +
-            "}";
-            console.log("%cprefixplete.js:98", "color: #4527a0", "Sparql-Endpoint", self._sparqlEndpoint);
+            "}\n" +
+            "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                prefixUrls = json.results.bindings.map(binding => {
+                prefixSuggestions = json.results.bindings.map(binding => {
                     return {
                         prefix: binding.prefix.value,
+                        display: binding.prefix.value,
                         uri: binding.uri.value,
                     };
                 });
+                prefixMappings = prefixMappings.concat(prefixSuggestions);
                 return true;
             });
         }
 
-        function getSpeciesSuggestions(prefix, genus) {
-            let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
-                "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
-                "SELECT DISTINCT ?species WHERE {\n" +
-                " GRAPH <https://linked.opendata.swiss/graph/plazi> {\n" +
-                "?sub dwc:genus \"" + genus + "\" .\n" +
-                "?sub dwc:species ?species .\n" +
-                "?sub rdf:type dwcfp:TaxonName.\n" +
-                "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
-                " }\n" +
-                "} ORDER BY UCASE(?species) LIMIT 10";
+        function getFullSuggestions(prefix) {
+            //console.log("%cPrefixplete > getFullSuggestions", "color: #4527a0", prefix);
+            let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
+            "SELECT DISTINCT ?uri WHERE {\n" +
+            "    ?uri ?p ?o .\n" +
+            "    FILTER ( REGEX ( STR(?uri), \""+ prefix.url.replace(/\./, "\\\\.") +"\") )\n" +
+            "}\n" +
+            "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                ss = json.results.bindings.map(binding => binding.species.value);
-                return true;
-            });
-        }
-
-        function getCombinedSuggestions(prefix) {
-            let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
-                "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
-                "SELECT DISTINCT ?genus ?species WHERE {\n" +
-                " GRAPH <https://linked.opendata.swiss/graph/plazi> {\n" +
-                "?sub dwc:genus ?genus .\n" +
-                "?sub dwc:species ?species .\n" +
-                "?sub rdf:type dwcfp:TaxonName.\n" +
-                "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
-                " }\n" +
-                "} ORDER BY UCASE(?species) LIMIT 10";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                cs = json.results.bindings.map(binding => binding.genus.value + ":" + binding.species.value);
+                fullSuggestions = json.results.bindings.map(binding => {
+                    return {
+                        prefix: prefix.prefix,
+                        display: binding.uri.value.replace(prefix.url, prefix.prefix + ":"),
+                        uri: binding.uri.value,
+                    };
+                });
                 return true;
             });
         }
@@ -148,6 +134,6 @@ export default class Prefixplete {
     }
 
     action(value) {
-        console.log("%cprefixplete.js:149", "color: #4527a0", "Value "+value+" selected, overwrite Prefixplete.action(value) method to have something happen.")
+        console.log("%cPrefixplete.action(value)", "color: #4527a0", "Value "+value+" selected, overwrite Prefixplete.action(value) method to have something happen.")
     }
 }
