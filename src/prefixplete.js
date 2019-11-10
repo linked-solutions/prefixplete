@@ -5,11 +5,11 @@ export default class Prefixplete {
     constructor(input, sparqlEndpoint = new SparqlEndpoint("https://mtp.linked.solutions/sparql")) {
         this._sparqlEndpoint = sparqlEndpoint;
         this._input = input;
+        this._prefixMappings = [];
 
         const self = this;
 
         let previousValue = input.value;
-        let prefixMappings = []; // [{uri, prefix},..]
         let prefixSuggestions = [];
         let fullSuggestions = [];
 
@@ -36,7 +36,7 @@ export default class Prefixplete {
         function getFullUri (prefixedUri) {
             const splitup = prefixedUri.split(":");
             //console.log("%cPrefixplete > getFullUri", "color: #4527a0", splitup, prefixMappings);
-            const mapping = prefixMappings.find(m => splitup[0] === m.prefix);
+            const mapping = self._prefixMappings.find(m => splitup[0] === m.prefix);
             if (mapping) {
                 return mapping.uri + splitup[1];
             } else {
@@ -45,7 +45,7 @@ export default class Prefixplete {
         }
 
         function getPrefixedUri (fullUri) {
-            const mapping = prefixMappings.find(m => fullUri.startsWith(m.uri));
+            const mapping = self._prefixMappings.find(m => fullUri.startsWith(m.uri));
             if (mapping) {
                 return fullUri.replace(mapping.uri, mapping.prefix + ":")
             } else {
@@ -109,11 +109,11 @@ export default class Prefixplete {
                 prefixSuggestions = json.results.bindings.map(binding => {
                     return {
                         prefix: binding.prefix.value,
-                        display: binding.prefix.value,
+                        display: binding.prefix.value + ":",
                         uri: binding.uri.value,
                     };
                 });
-                prefixMappings = prefixMappings.concat(prefixSuggestions);
+                self._prefixMappings = self._prefixMappings.concat(prefixSuggestions);
                 return true;
             });
         }
@@ -140,8 +140,18 @@ export default class Prefixplete {
         }
     }
 
+    get value() {
+        const splitup = this._input.value.toString().split(":");
+        const mapping = this._prefixMappings.find(m => splitup[0] === m.prefix);
+        if (mapping && this._input.value.toString().indexOf(":") !== -1) {
+            return mapping.uri + splitup[1];
+        } else {
+            return this._input.value.toString();
+        }
+    }
+
     lookup() {
-        this.action(this._input.value.toString());
+        this.action(this.value);
     }
 
     action(value) {

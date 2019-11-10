@@ -7,13 +7,18 @@
         <script src="/prefixplete.js"></script>
     </head>
     <body>
-        <label for="url-input">Url (Class or property name)</label> <input type="text" id="url-input"/>
+        <pre id="ooh"> </pre>
+        <label for="url-input">Url (Class or property name) <input type="text" id="url-input"/></label>
         <script>
             let input = document.getElementById("url-input");
             let prefixplete = new Prefixplete(input);
-            prefixplete.action = function(value) {
+            prefixplete.action = (value) => {
+                document.getElementById("ooh").textContent = prefixplete.value;
                 alert(value);
             }
+            input.addEventListener("keyup", (e) => {
+                document.getElementById("ooh").textContent = prefixplete.value;
+            });
         </script>
     </body>
 </html>    
