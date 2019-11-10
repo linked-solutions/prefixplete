@@ -10,39 +10,45 @@
     <title>Prefixplete Example</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.css"
         integrity="sha256-WucYll9Mn2FE68lRHrTpBwzWC+Ra3IeEok0re4TBmgc=" crossorigin="anonymous" />
-    <script src="/prefixplete.js"></script>
+    <script src="prefixplete.js"></script>
 </head>
+
 <body>
     <div class="container">
-      <div class="card">
-        <div class="info">
-            Provides a text field to select an RDF property or class with prefixed notation and auto-completion.
-            <br>
-            It uses <a href="https://leaverou.github.io/awesomplete/">Awesomplete</a> autocomplete widget and prefixes
-            from <a href="https://prefix.cc/">prefix.cc</a> with the ontologies harvested by <a href="https://github.com/linked-solutions/prefix.cc-harvester">our prefix.cc-harvester</a>.
-        </div>
-      </div>
-      <div class="card">
-            <label for="ooh">prefixplete.value:</label>
-            <div class="info" id="ooh"> </div>
-        </div>
-        <div class="flexrow">
-            <label for="url-input">Class or property name:</label>
-            <input type="text" id="url-input" />
-        </div>
-      </div>
-      <div class="vertexpand">
-      </div>
-      <div class="card">
-        <div class="flexrow">
+        <div class="card">
             <div class="info">
-              Source Code on <a href="https://github.com/linked-solutions/prefixplete">Github</a>
-            </div>
-            <div class="info">
-              Made by <a href="https://factsmission.com">FactsMission</a>
+                Provides a text field to select an RDF property or class with prefixed notation and auto-completion.
+                <br>
+                It uses <a href="https://leaverou.github.io/awesomplete/">Awesomplete</a> autocomplete widget and
+                prefixes
+                from <a href="https://prefix.cc/">prefix.cc</a> with the ontologies harvested by <a
+                    href="https://github.com/linked-solutions/prefix.cc-harvester">our prefix.cc-harvester</a>.
             </div>
         </div>
-      </div>
+        <div class="card">
+            <div class="flexrow">
+                <label for="ooh">prefixplete.value:</label>
+                <div class="info" id="ooh"> </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="flexrow">
+                <label for="url-input">Class or property name:</label>
+                <input type="text" id="url-input" />
+            </div>
+        </div>
+        <div class="vertexpand">
+        </div>
+        <div class="card">
+            <div class="flexrow">
+                <div class="info">
+                    Source Code on <a href="https://github.com/linked-solutions/prefixplete">Github</a>
+                </div>
+                <div class="info">
+                    Made by <a href="https://factsmission.com">FactsMission</a>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         let input = document.getElementById("url-input");
