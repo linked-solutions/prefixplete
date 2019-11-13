@@ -14,7 +14,7 @@ export default class Prefixplete {
         let fullSuggestions = [];
 
         const awesomplete = new Awesomplete(input);
-        awesomplete.maxItems = 25;
+        awesomplete.maxItems = 15;
         awesomplete.
 
         input.addEventListener("keyup", (e) => {
