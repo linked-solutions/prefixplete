@@ -6,8 +6,10 @@ It uses [Awesomplete](https://leaverou.github.io/awesomplete/) autocomplete widg
 [prefix.cc](https://prefix.cc/) with the ontologies harvested by 
 [prefix.cc-harvester](https://github.com/linked-solutions/prefix.cc-harvester).
 
+## Try it out
+
+http://linked.solutions/prefixplete/
+
 ## Usage
 
 See example/index.html for usage.
-
-(Todo: add instructions)
