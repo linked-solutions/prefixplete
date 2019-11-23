@@ -12,6 +12,7 @@
 <body>
     <pre id="ooh"> </pre>
     <label for="url-input">Url (Class or property name) <input type="text" id="url-input" /></label>
+    <button id="reset">Reset value</button>
     <script>
         let input = document.getElementById("url-input");
         let prefixplete = new Prefixplete(input);
@@ -22,6 +23,10 @@
         input.addEventListener("keyup", (e) => {
             document.getElementById("ooh").textContent = prefixplete.value || " ";
         });
+        let button = document.getElementById("reset");
+        button.addEventListener("click", (e) => {
+            prefixplete.setValue("http://schema.org/headline")
+        })
     </script>
 </body>
 

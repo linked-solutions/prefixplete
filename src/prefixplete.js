@@ -113,6 +113,30 @@ export default class Prefixplete {
         }
     }
 
+    setValue(value) {
+        this._input.value = value;
+        let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
+                "SELECT DISTINCT ?prefix ?uri WHERE {\n" +
+                "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
+                "         vann:preferredNamespaceUri ?uri .\n" +
+                "    FILTER ( REGEX (\"" + value + "\", \"^\" + str(?uri)) )\n" +
+                "}\n" +
+                "LIMIT 1";
+        console.log("query: "+query);
+        return this._sparqlEndpoint.getSparqlResultSet(query).then(json => {
+                    if (json.results.bindings[0]) {
+                        this._input.value = value.replace(
+                            json.results.bindings[0].uri.value,
+                            json.results.bindings[0].prefix.value + ":");
+                        this._prefixMappings.push({
+                            prefix: json.results.bindings[0].prefix.value,
+                            uri: json.results.bindings[0].uri
+                        });
+                    }
+                    return true;
+                });
+    }
+
     get value() {
         const splitup = this._input.value.toString().split(":");
         const mapping = this._prefixMappings.find(m => splitup[0] === m.prefix);
@@ -124,13 +148,7 @@ export default class Prefixplete {
     }
 
     set value(value) {
-        let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
-                "SELECT ?prefix ?uri WHERE {\n" +
-                "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
-                "         vann:preferredNamespaceUri ?uri .\n" +
-                "    FILTER ( REGEX (?prefix, \"" + prefix + "\") )\n" +
-                "}\n" +
-                "LIMIT 40";
+        this.setValue(value);
     }
 
     lookup() {
