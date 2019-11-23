@@ -45,12 +45,8 @@ export default class Prefixplete {
         }
 
         function getPrefixedUri(fullUri) {
-            const mapping = self._prefixMappings.find(m => fullUri.startsWith(m.uri));
-            if (mapping) {
-                return fullUri.replace(mapping.uri, mapping.prefix + ":")
-            } else {
-                return fullUri;
-            }
+            const uri = self._getPrefixedUri(fullUri);
+            return uri != null ? uri : fullUri;
         }
 
         function populateSuggestions() {
@@ -113,28 +109,42 @@ export default class Prefixplete {
         }
     }
 
+    _getPrefixedUri(fullUri) {
+        const mapping = this._prefixMappings.find(m => fullUri.startsWith(m.uri));
+        if (mapping) {
+            return fullUri.replace(mapping.uri, mapping.prefix + ":")
+        } else {
+            return null;
+        }
+    }
+
     setValue(value) {
-        this._input.value = value;
-        let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
-                "SELECT DISTINCT ?prefix ?uri WHERE {\n" +
-                "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
-                "         vann:preferredNamespaceUri ?uri .\n" +
-                "    FILTER ( REGEX (\"" + value + "\", \"^\" + str(?uri)) )\n" +
-                "}\n" +
-                "LIMIT 1";
-        console.log("query: "+query);
-        return this._sparqlEndpoint.getSparqlResultSet(query).then(json => {
+        const prefixedUri = this._getPrefixedUri(value);
+        if (prefixedUri) {
+            this._input.value = prefixedUri;
+        } else {
+            this._input.value = value;
+            let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
+                    "SELECT DISTINCT ?prefix ?uri WHERE {\n" +
+                    "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
+                    "         vann:preferredNamespaceUri ?uri .\n" +
+                    "    FILTER ( REGEX (\"" + value + "\", \"^\" + str(?uri)) )\n" +
+                    "}\n" +
+                    "LIMIT 1";
+            console.log("query: "+query);
+            return this._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                     if (json.results.bindings[0]) {
                         this._input.value = value.replace(
                             json.results.bindings[0].uri.value,
                             json.results.bindings[0].prefix.value + ":");
                         this._prefixMappings.push({
-                            prefix: json.results.bindings[0].prefix.value,
-                            uri: json.results.bindings[0].uri
+                            'prefix': json.results.bindings[0].prefix.value,
+                            'uri': json.results.bindings[0].uri.value
                         });
                     }
                     return true;
                 });
+        }
     }
 
     get value() {
