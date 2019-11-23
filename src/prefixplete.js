@@ -96,7 +96,7 @@ export default class Prefixplete {
             let query = "SELECT DISTINCT ?uri WHERE {\n" +
                 "  GRAPH <https://mtp.linked.solutions/" + prefix.prefix + "> {\n" +
                 "    ?uri ?p ?o .\n" +
-                "    FILTER ( REGEX ( STR(?uri), \"" + prefix.url.replace(/\./, "\\\\.") + "\") )\n" +
+                "    FILTER ( REGEX ( STR(?uri), \"" + prefix.url.replace(/\./g, "\\\\.") + "\") )\n" +
                 "  }\n" +
                 "}\n" +
                 "LIMIT 40";
@@ -121,6 +121,16 @@ export default class Prefixplete {
         } else {
             return this._input.value.toString();
         }
+    }
+
+    set value(value) {
+        let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
+                "SELECT ?prefix ?uri WHERE {\n" +
+                "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
+                "         vann:preferredNamespaceUri ?uri .\n" +
+                "    FILTER ( REGEX (?prefix, \"" + prefix + "\") )\n" +
+                "}\n" +
+                "LIMIT 40";
     }
 
     lookup() {
