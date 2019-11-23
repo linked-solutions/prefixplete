@@ -17,12 +17,12 @@ export default class Prefixplete {
         awesomplete.maxItems = 15;
         awesomplete.
 
-        input.addEventListener("keyup", (e) => {
-            if ((input.value.length >= 2) && (e.key !== "Enter") && (input.value !== previousValue)) {
-                populateSuggestions();
-            }
-            return true;
-        });
+            input.addEventListener("keyup", (e) => {
+                if ((input.value.length >= 2) && (e.key !== "Enter") && (input.value !== previousValue)) {
+                    populateSuggestions();
+                }
+                return true;
+            });
 
         input.addEventListener("awesomplete-selectcomplete", (e) => {
             if (input.value.trim().split(":").length < 2 || input.value.trim().split(":")[1] === "") {
@@ -33,7 +33,7 @@ export default class Prefixplete {
             }
         });
 
-        function getFullUri (prefixedUri) {
+        function getFullUri(prefixedUri) {
             const splitup = prefixedUri.split(":");
             //console.log("%cPrefixplete > getFullUri", "color: #4527a0", splitup, prefixMappings);
             const mapping = self._prefixMappings.find(m => splitup[0] === m.prefix);
@@ -44,7 +44,7 @@ export default class Prefixplete {
             }
         }
 
-        function getPrefixedUri (fullUri) {
+        function getPrefixedUri(fullUri) {
             const mapping = self._prefixMappings.find(m => fullUri.startsWith(m.uri));
             if (mapping) {
                 return fullUri.replace(mapping.uri, mapping.prefix + ":")
@@ -63,48 +63,21 @@ export default class Prefixplete {
             } else {
                 previousValue = input.value;
                 const splitup = input.value.toString().split(":");
-                getFullSuggestions({prefix: splitup[0], url: getFullUri(input.value.toString())}).then(_ => {
+                getFullSuggestions({ prefix: splitup[0], url: getFullUri(input.value.toString()) }).then(_ => {
                     awesomplete.list = fullSuggestions.map(i => i.display !== i.prefix + ":" ? i.display : undefined);
                     //console.log("%cPrefixplete > populateSuggestions", "color: #4527a0", fullSuggestions.map(i => i.display !== i.prefix + ":" ? i.display : undefined));
                     awesomplete.open();
                 });
             }
-        } 
-
-        /*awesomplete.filter = (t, i) => {
-            let foundPos = t.toLowerCase().indexOf(i.toLowerCase());
-            return (foundPos === 0) || (foundPos === (t.indexOf(".") + 1));
-        };*/
-
-        /*awesomplete.item = (suggestion, i) => {
-            let foundPos = suggestion.toLowerCase().indexOf(i.toLowerCase());
-            let suggestionSpacePos = suggestion.substr(0, suggestion.length - 1).indexOf(" ");
-            let html;
-            if (suggestionSpacePos === -1) {
-                html = "<mark>" + suggestion.substring(0, i.length) + "</mark>" + suggestion.substring(i.length);
-            } else if (i.indexOf(" ") === -1) {
-                html = suggestion.substring(0, suggestionSpacePos + 1) + "<mark>" +
-                    suggestion.substring(suggestionSpacePos + 1, suggestionSpacePos + 1 + i.length) +
-                    "</mark>" + suggestion.substring(suggestionSpacePos + 1 + i.length);
-            } else if (i.indexOf(" ") !== -1) {
-                html = "<mark>" +
-                    suggestion.substring(0, i.length) +
-                    "</mark>" + suggestion.substring(i.length);
-            }
-            let result = document.createElement("li");
-            result.setAttribute("aria-selected", "false");
-            result.innerHTML = html;
-            return result;
-        };*/
-
+        }
         function getPrefixUrlSuggestions(prefix) {
             let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
-            "SELECT ?prefix ?uri WHERE {\n" +
-            "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
-            "         vann:preferredNamespaceUri ?uri .\n" +
-            "    FILTER ( REGEX (?prefix, \""+ prefix +"\") )\n" +
-            "}\n" +
-            "LIMIT 40";
+                "SELECT ?prefix ?uri WHERE {\n" +
+                "    ?sub vann:preferredNamespacePrefix ?prefix ;\n" +
+                "         vann:preferredNamespaceUri ?uri .\n" +
+                "    FILTER ( REGEX (?prefix, \"" + prefix + "\") )\n" +
+                "}\n" +
+                "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 prefixSuggestions = json.results.bindings.map(binding => {
                     return {
@@ -121,12 +94,12 @@ export default class Prefixplete {
         function getFullSuggestions(prefix) {
             //console.log("%cPrefixplete > getFullSuggestions", "color: #4527a0", prefix);
             let query = "SELECT DISTINCT ?uri WHERE {\n" +
-            "  GRAPH <https://mtp.linked.solutions/" + prefix.prefix + "> {\n" +
-            "    ?uri ?p ?o .\n" +
-            "    FILTER ( REGEX ( STR(?uri), \""+ prefix.url.replace(/\./, "\\\\.") +"\") )\n" +
-            "  }\n" +
-            "}\n" +
-            "LIMIT 40";
+                "  GRAPH <https://mtp.linked.solutions/" + prefix.prefix + "> {\n" +
+                "    ?uri ?p ?o .\n" +
+                "    FILTER ( REGEX ( STR(?uri), \"" + prefix.url.replace(/\./, "\\\\.") + "\") )\n" +
+                "  }\n" +
+                "}\n" +
+                "LIMIT 40";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 fullSuggestions = json.results.bindings.map(binding => {
                     return {
@@ -155,6 +128,6 @@ export default class Prefixplete {
     }
 
     action(value) {
-        console.log("%cPrefixplete.action(value)", "color: #4527a0", "Value "+value+" selected, overwrite Prefixplete.action(value) method to have something happen.")
+        console.log("%cPrefixplete.action(value)", "color: #4527a0", "Value " + value + " selected, overwrite Prefixplete.action(value) method to have something happen.")
     }
 }
