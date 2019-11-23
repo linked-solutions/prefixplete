@@ -2,8 +2,9 @@
   "name": "prefixplete",
   "version": "1.0.0",
   "description": "Allows auto-completion of prefixed class and property names in an input field",
-  "main": "src/prefixplete.js",
+  "main": "lib/prefixplete.js",
   "scripts": {
+    "prepublishOnly": "npm i && babel --no-babelrc src --out-dir lib -s --presets=@babel/preset-env",
     "build": "webpack -p",
     "start": "webpack-dev-server --hot --inline --content-base example --host 0.0.0.0"
   },
