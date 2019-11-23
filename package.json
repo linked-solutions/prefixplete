@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/linked-solutions/prefixplete.git"
   },
-  "author": "",
+  "author": "@nleanba",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/linked-solutions/prefixplete/issues"
