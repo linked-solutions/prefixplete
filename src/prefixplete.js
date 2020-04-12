@@ -131,7 +131,6 @@ export default class Prefixplete {
                     "    FILTER ( REGEX (\"" + value + "\", \"^\" + str(?uri)) )\n" +
                     "}\n" +
                     "LIMIT 1";
-            console.log("query: "+query);
             return this._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                     if (json.results.bindings[0]) {
                         this._input.value = value.replace(
