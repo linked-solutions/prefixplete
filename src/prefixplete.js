@@ -2,8 +2,14 @@ import Awesomplete from "awesomplete";
 import SparqlEndpoint from "@retog/sparql-client";
 
 export default class Prefixplete {
-    constructor(input, sparqlEndpoint = new SparqlEndpoint("https://mtp.linked.solutions/sparql")) {
-        this._sparqlEndpoint = sparqlEndpoint;
+    constructor(input, 
+        sparqlEndpoint = new SparqlEndpoint("https://mtp.linked.solutions/sparql"),
+        prefixGraphPrefix = "https://mtp.linked.solutions/") {
+        if (sparqlEndpoint.getSparqlResultSet) {
+            this._sparqlEndpoint = sparqlEndpoint;
+        } else {
+            this._sparqlEndpoint = new SparqlEndpoint(sparqlEndpoint);
+        }
         this._input = input;
         this._prefixMappings = [];
 
@@ -90,7 +96,7 @@ export default class Prefixplete {
         function getFullSuggestions(prefix) {
             //console.log("%cPrefixplete > getFullSuggestions", "color: #4527a0", prefix);
             let query = "SELECT DISTINCT ?uri WHERE {\n" +
-                "  GRAPH <https://mtp.linked.solutions/" + prefix.prefix + "> {\n" +
+                "  GRAPH <"+prefixGraphPrefix + prefix.prefix + "> {\n" +
                 "    ?uri ?p ?o .\n" +
                 "    FILTER ( REGEX ( STR(?uri), \"" + prefix.url.replace(/\./g, "\\\\.") + "\") )\n" +
                 "  }\n" +

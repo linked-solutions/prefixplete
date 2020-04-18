@@ -15,7 +15,8 @@
     <button id="reset">Reset value</button>
     <script>
         let input = document.getElementById("url-input");
-        let prefixplete = new Prefixplete(input);
+        let prefixplete = new Prefixplete(input, "https://ontologies.farewellutopia.com/sparql", 
+            "https://ontologies.farewellutopia.com/");
         prefixplete.action = (value) => {
             document.getElementById("ooh").textContent = prefixplete.value;
             alert(value);
