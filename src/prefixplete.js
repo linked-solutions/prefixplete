@@ -1,15 +1,14 @@
 import Awesomplete from "awesomplete";
-import SparqlEndpoint from "@retog/sparql-client";
+import { newEngine } from "@comunica/actor-init-sparql";
+
+const sparqlEngine = newEngine();
 
 export default class Prefixplete {
     constructor(input, 
-        sparqlEndpoint = new SparqlEndpoint("https://mtp.linked.solutions/sparql"),
+        sparqlEndpoint = "https://mtp.linked.solutions/sparql",
         prefixGraphPrefix = "https://mtp.linked.solutions/") {
-        if (sparqlEndpoint.getSparqlResultSet) {
-            this._sparqlEndpoint = sparqlEndpoint;
-        } else {
-            this._sparqlEndpoint = new SparqlEndpoint(sparqlEndpoint);
-        }
+ 
+        this._sparqlEndpoint = sparqlEndpoint;
         this._input = input;
         this._prefixMappings = [];
 
@@ -72,6 +71,16 @@ export default class Prefixplete {
                 });
             }
         }
+
+        function streamToArray(stream) {
+            const chunks = [];
+            return new Promise((resolve, reject) => {
+              stream.on("data", chunk => chunks.push(chunk));
+              stream.on("error", reject);
+              stream.on("end", () => resolve(chunks));
+            });
+          }
+
         function getPrefixUrlSuggestions(prefix) {
             let query = "PREFIX vann: <http://purl.org/vocab/vann/>\n" +
                 "SELECT ?prefix ?uri WHERE {\n" +
@@ -80,17 +89,21 @@ export default class Prefixplete {
                 "    FILTER ( REGEX (?prefix, \"" + prefix + "\") )\n" +
                 "}\n" +
                 "LIMIT 40";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                prefixSuggestions = json.results.bindings.map(binding => {
+            return sparqlEngine.query(query, { sources: [
+                { type: 'sparql', value: self._sparqlEndpoint}
+                ]}).then(json => {
+                    return streamToArray(json.bindingsStream);
+                }).then(bindings => bindings.map(binding => {
                     return {
-                        prefix: binding.prefix.value,
-                        display: binding.prefix.value + ":",
-                        uri: binding.uri.value,
+                        prefix: binding.get("?prefix").value,
+                        display: binding.get("?prefix").value + ":",
+                        uri: binding.get("?uri").value,
                     };
+                })).then(suggestions => {
+                    self._prefixMappings = self._prefixMappings.concat(suggestions);
+                    prefixSuggestions = suggestions
+                    return suggestions;
                 });
-                self._prefixMappings = self._prefixMappings.concat(prefixSuggestions);
-                return true;
-            });
         }
 
         function getFullSuggestions(prefix) {
@@ -102,16 +115,20 @@ export default class Prefixplete {
                 "  }\n" +
                 "}\n" +
                 "LIMIT 40";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                fullSuggestions = json.results.bindings.map(binding => {
-                    return {
-                        prefix: prefix.prefix,
-                        display: getPrefixedUri(binding.uri.value),
-                        uri: binding.uri.value,
-                    };
-                });
-                return true;
-            });
+                return sparqlEngine.query(query, { sources: [
+                    { type: 'sparql', value: self._sparqlEndpoint}
+                    ]}).then(json => {
+                        return streamToArray(json.bindingsStream);
+                    }).then(bindings => bindings.map(binding => {
+                        return {
+                            prefix: prefix.prefix,
+                            display: getPrefixedUri(binding.get("?uri").value),
+                            uri: binding.get("?uri").value,
+                        };
+                    })).then(suggestions => {
+                        fullSuggestions = suggestions
+                        return suggestions;
+                    });
         }
     }
 

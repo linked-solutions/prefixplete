@@ -47,8 +47,7 @@ module.exports = {
     ]
   },
   externals: {
-    'node-fetch': 'fetch',
-    'ext-rdflib': '$rdf'
+    'node-fetch': 'fetch'
   },
   optimization: {
     minimize: true

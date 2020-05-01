@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/linked-solutions/prefixplete#readme",
   "dependencies": {
-    "@retog/sparql-client": "^1.1.0",
+    "@babel/runtime": "^7.9.6",
+    "@comunica/actor-init-sparql": "^1.12.1",
     "awesomplete": "^1.1.5"
   },
   "devDependencies": {
