@@ -1,6 +1,6 @@
 {
   "name": "prefixplete",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Allows auto-completion of prefixed class and property names in an input field",
   "main": "lib/prefixplete.js",
   "scripts": {
